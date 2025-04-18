@@ -24,8 +24,8 @@ Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanct
 
 Route::get('cars', [CarController::class, 'index']);
 Route::get('cars/popular', [CarController::class, 'popular']);
-Route::get('cars/{id}', [CarController::class, 'show']);
 Route::get('cars/search', [CarController::class, 'search']);
+Route::get('cars/{id}', [CarController::class, 'show']);
 
 Route::get('bookings/{id}', [BookingController::class, 'show']);
 Route::post('bookings', [BookingController::class, 'store'])->middleware('auth:sanctum');

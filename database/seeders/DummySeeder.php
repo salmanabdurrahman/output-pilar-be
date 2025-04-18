@@ -14,86 +14,68 @@ class DummySeeder extends Seeder
 {
     public function run(): void
     {
-        // Users
-        $user1 = User::create([
-            'name' => 'Asep Bensin',
-            'email' => 'asep@example.com',
-            'phone_number' => '081234567890',
-            'password' => Hash::make('password'),
-        ]);
+        // ---------------------------------------------
+        // 1. Users
+        // ---------------------------------------------
+        $usersData = [
+            ['name' => 'Asep Bensin', 'email' => 'asep@example.com', 'phone_number' => '081234567890'],
+            ['name' => 'Aisyah Nurul', 'email' => 'aisyah@example.com', 'phone_number' => '081234567891'],
+            ['name' => 'Iwan Setiawan', 'email' => 'iwan@example.com', 'phone_number' => '081234567892'],
+            ['name' => 'Siti Aminah', 'email' => 'siti@example.com', 'phone_number' => '081234567893'],
+            ['name' => 'Budi Santoso', 'email' => 'budi@example.com', 'phone_number' => '081234567894'],
+        ];
+        $users = [];
+        foreach ($usersData as $data) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'phone_number' => $data['phone_number'],
+                'password' => Hash::make('password'),
+            ]);
+            $users[] = $user;
+        }
 
-        $user2 = User::create([
-            'name' => 'Aisyah Nurul',
-            'email' => 'aisyah@example.com',
-            'phone_number' => '081234567891',
-            'password' => Hash::make('password'),
-        ]);
+        // ---------------------------------------------
+        // 2. Cars
+        // ---------------------------------------------
+        $carsData = [
+            ['name' => 'Toyota Avanza', 'price' => 350000, 'color' => 'Silver', 'seats' => 7, 'cc' => 1500, 'top_speed' => 180, 'description' => 'Mobil keluarga irit bahan bakar'],
+            ['name' => 'Honda Civic', 'price' => 500000, 'color' => 'Black', 'seats' => 5, 'cc' => 1800, 'top_speed' => 220, 'description' => 'Mobil sporty dan cepat'],
+            ['name' => 'Daihatsu Xenia', 'price' => 300000, 'color' => 'White', 'seats' => 7, 'cc' => 1300, 'top_speed' => 175, 'description' => 'Praktis untuk keluarga kecil'],
+            ['name' => 'Honda Jazz', 'price' => 450000, 'color' => 'Red', 'seats' => 5, 'cc' => 1500, 'top_speed' => 200, 'description' => 'Lincah di kota'],
+            ['name' => 'Toyota Innova', 'price' => 600000, 'color' => 'Blue', 'seats' => 8, 'cc' => 2000, 'top_speed' => 190, 'description' => 'Kenyamanan maksimal'],
+        ];
+        $cars = [];
+        foreach ($carsData as $data) {
+            $car = Car::create(array_merge($data, ['status' => 'available']));
+            $cars[] = $car;
+        }
 
-        // Cars
-        $car1 = Car::create([
-            'name' => 'Toyota Avanza',
-            'price' => 350000,
-            'color' => 'Silver',
-            'status' => 'available',
-            'seats' => 7,
-            'cc' => 1500,
-            'top_speed' => 180,
-            'description' => 'Mobil keluarga irit bahan bakar',
-        ]);
+        // ---------------------------------------------
+        // 3. Car Galleries
+        // ---------------------------------------------
+        foreach ($cars as $car) {
+            CarGallery::create(['car_id' => $car->id, 'image_path' => "images/cars/{$car->id}-1.jpg"]);
+            CarGallery::create(['car_id' => $car->id, 'image_path' => "images/cars/{$car->id}-2.jpg"]);
+        }
 
-        $car2 = Car::create([
-            'name' => 'Honda Civic',
-            'price' => 500000,
-            'color' => 'Hitam',
-            'status' => 'available',
-            'seats' => 5,
-            'cc' => 1800,
-            'top_speed' => 220,
-            'description' => 'Mobil sporty dan cepat',
-        ]);
+        // ---------------------------------------------
+        // 4. Bookings & Transactions
+        // ---------------------------------------------
+        foreach (range(0, 4) as $i) {
+            $booking = Booking::create([
+                'user_id' => $users[$i]->id,
+                'car_id' => $cars[$i]->id,
+                'booking_date' => now()->addDays($i + 1),
+                'duration_days' => $i + 1,
+                'status' => 'confirmed',
+            ]);
 
-        // Car Galleries
-        CarGallery::create([
-            'car_id' => $car1->id,
-            'image_path' => 'images/cars/avanza-1.jpg',
-        ]);
-        CarGallery::create([
-            'car_id' => $car1->id,
-            'image_path' => 'images/cars/avanza-2.jpg',
-        ]);
-        CarGallery::create([
-            'car_id' => $car2->id,
-            'image_path' => 'images/cars/civic-1.jpg',
-        ]);
-
-        // Bookings
-        $booking1 = Booking::create([
-            'user_id' => $user1->id,
-            'car_id' => $car1->id,
-            'booking_date' => now()->addDays(1),
-            'duration_days' => 3,
-            'status' => 'pending',
-        ]);
-
-        $booking2 = Booking::create([
-            'user_id' => $user2->id,
-            'car_id' => $car2->id,
-            'booking_date' => now()->addDays(2),
-            'duration_days' => 2,
-            'status' => 'confirmed',
-        ]);
-
-        // Transactions
-        Transaction::create([
-            'booking_id' => $booking1->id,
-            'amount' => $car1->price * 3,
-            'payment_status' => 'unpaid',
-        ]);
-
-        Transaction::create([
-            'booking_id' => $booking2->id,
-            'amount' => $car2->price * 2,
-            'payment_status' => 'paid',
-        ]);
+            Transaction::create([
+                'booking_id' => $booking->id,
+                'amount' => $cars[$i]->price * ($i + 1),
+                'payment_status' => 'paid',
+            ]);
+        }
     }
 }
